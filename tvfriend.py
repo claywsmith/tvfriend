@@ -1,53 +1,53 @@
 import urllib2
 from urllib2 import urlopen
 from xml.dom.minidom import parseString
+from sys import exit
 
 checklist = ["x","X"]
+SHOWINFO_URL = 'http://services.tvrage.com/feeds/showinfo.php?sid='
+SEARCH_URL = "http://services.tvrage.com/feeds/search.php?show="
 
 def program_open():
-	print "Welcome to TV Friend. What would you like to do?"
-	print "\t1. Show me what's on the tube tonight."
-	print "\t2. Show me what's on the tube tomorrow night."
-	print "\t3. Show me all the stuff playing this week." 
-	print "\t4. List the shows I follow."
-	print "\t5. Add a show to my list." #run queryForShow()
-	print "\t6. Remove a show from my list."
+	print """
+Welcome to TV Friend. What would you like to do?
+	1. Show me what's on the tube tonight.
+	2. Show me what's on the tube tomorrow night.
+	3. Show me all the stuff playing this week.
+	4. List the shows I follow.
+	5. Add a show to my list.
+	6. Remove a show from my list.	
+	Q. Quit
+"""
 	tv_friend_runner()
 
 def tv_friend_runner():
-	next = raw_input(" >>> ")
-	if next == "1":
-		pass
-	elif next == "2":
-		pass
-	elif next == "3":
+	next = raw_input(" >>> ").strip()
+	if next in ('1', '2', '3', '6'):
 		pass
 	elif next == "4":
 		printShows()
 	elif next == "5":
 		queryForShow()
-	elif next == "6":
-		pass
+	elif next.lower() == 'q':
+		exit(0)
 	else:
 		print "Invalid input."
 		tv_friend_runner()	
 		
 def printList(l):
-	checklist
 	for a, show in enumerate(l):
-		print "\t" + str(a + 1) + ". - " + show
+		print "\t %d. - %s" % (a + 1, show)
 		checklist.append(a + 1)
-	return checklist
 	
 def getShowInfo(show_id, tag):
-	url = "http://services.tvrage.com/feeds/showinfo.php?sid=" + str(show_id)
+	url = SHOWINFO_URL + str(show_id)
 	f = urlopen(url)
 	data = f.read()
 	f.close()
 	dom = parseString(data)
 	for node in dom.getElementsByTagName(tag):
 		xmlTag = node.toxml()
-		xmlData = xmlTag.replace('<' + tag + '>','').replace('</' + tag + '>','')
+		xmlData = xmlTag.replace('<%s>' % tag, '').replace('</%s>' % tag, '')
 		return xmlData
 		
 #showid = "24493"
@@ -55,7 +55,7 @@ def getShowInfo(show_id, tag):
 
 def queryForShow():
 	search_show = urllib2.quote(raw_input("Which show would you like to follow? > "))
-	search = "http://services.tvrage.com/feeds/search.php?show=" + str(search_show)
+	search = SEARCH_URL + str(search_show)
 	search_file = urlopen(search)
 	searchdata = search_file.read()
 	search_file.close()
@@ -86,7 +86,7 @@ def queryForShow():
 	if show_selection.lower() == "x":
 		program_open()
 	else:
-		check_cancelled_url = "http://services.tvrage.com/feeds/showinfo.php?sid=" + str(search_id_list[int(show_selection) - 1])
+		check_cancelled_url = SHOWINFO_URL + str(search_id_list[int(show_selection) - 1])
 		cancel_file = urlopen(check_cancelled_url)
 		cancel_data = cancel_file.read()
 		cancel_file.close()
@@ -101,7 +101,7 @@ def queryForShow():
 				program_open()
 			else:
 				#add to file 'shows.txt'/ return to program
-				search_write = search_name_list[int(show_selection) -1] + "\n" + str(search_id_list[int(show_selection ) -1]) + "\n"				
+				search_write = search_name_list[int(show_selection) -1] + "\n" + str(search_id_list[int(show_selection ) - 1]) + "\n"				
 				try:
 					f = open("shows.txt", "r+")
 				except IOError:
