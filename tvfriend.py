@@ -101,8 +101,12 @@ def queryForShow():
 				program_open()
 			else:
 				#add to file 'shows.txt'/ return to program
-				search_write = search_name_list[int(show_selection) -1] + "\n" + str(search_id_list[int(show_selection ) -1]) + "\n"
-				f = open("shows.txt", "r+")
+				search_write = search_name_list[int(show_selection) -1] + "\n" + str(search_id_list[int(show_selection ) -1]) + "\n"				
+				try:
+					f = open("shows.txt", "r+")
+				except IOError:
+					open('shows.txt', 'w')
+					f = open('shows.txt', 'r+')
 				store = f.read()
 				if search_write in store:
 					print "You were already following %s!" % search_name_list[int(show_selection) -1]
@@ -143,9 +147,9 @@ def printShows():
 	else:
 #		choice_id = showid[int(show_selection) - 1]
 		showid = str(showid[int(show_selection) - 1])
-		print "Name: " + getShowInfo(showid, 'showname')
-		print "Seasons: " + getShowInfo(showid, 'seasons')
-		print "Airday / Time: " + getShowInfo(showid, 'airday') + ", " + getShowInfo(showid, 'airtime')
+		print "Name: %s" % getShowInfo(showid, 'showname')
+		print "Seasons: %s" % getShowInfo(showid, 'seasons')
+		print "Airday / Time: %s, %s" % (getShowInfo(showid, 'airday'), getShowInfo(showid, 'airtime'))
 		
 
 #	for show in shows:
